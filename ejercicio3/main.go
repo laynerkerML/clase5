@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,6 +34,12 @@ func main() {
 	})
 
 	r.GET("/users", func(c *gin.Context) {
+		id := c.Query("id")
+		if id != "" {
+			fmt.Println("filter: ", id)
+			c.JSON(200, GetFilter("id", id))
+			return
+		}
 		c.JSON(200, GetAll())
 	})
 
@@ -47,4 +54,24 @@ func GetAll() Accesos {
 	}
 	_ = json.Unmarshal(files, &datos)
 	return datos
+}
+
+func GetFilter(fieldFilter string, valueFilter string) Accesos {
+	file, err := os.ReadFile("../users.json")
+	datos := Accesos{}
+	if err != nil {
+		fmt.Println(err)
+	}
+	_ = json.Unmarshal([]byte(file), &datos)
+	filter := new(Accesos)
+	for _, u := range datos.Users {
+		fmt.Println("id: ", u.Id)
+		if fieldFilter == "id" {
+			id, _ := strconv.Atoi(valueFilter)
+			if u.Id == id {
+				filter.Users = append(filter.Users, u)
+			}
+		}
+	}
+	return *filter
 }
