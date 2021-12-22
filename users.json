@@ -1,0 +1,24 @@
+{
+    "users": [
+        {
+            "id": 1, 
+            "nombre": "Laynerker",
+            "apellido": "Guerrero", 
+            "email": "laynerker.guerrero@mercadolibre.com",
+            "edad": 31, 
+            "altura": 10, 
+            "activo": true, 
+            "fechaCreacion": "16/08/2020"
+        },
+        {
+            "id": 2, 
+            "nombre": "Yissel",
+            "apellido": "Garcia", 
+            "email": "yisselivett@gmail.com",
+            "edad": 38, 
+            "altura": 20, 
+            "activo": false, 
+            "fechaCreacion": "18/09/2021"
+        }
+    ]
+}
