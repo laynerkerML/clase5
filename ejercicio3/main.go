@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -43,25 +44,21 @@ func main() {
 		c.JSON(200, GetAll())
 	})
 
+	r.GET("/users/:id", getById)
+
 	r.Run()
 }
 
 func GetAll() Accesos {
-	files, err := os.ReadFile("../users.json")
+	file := getFile()
 	datos := Accesos{}
-	if err != nil {
-		fmt.Println(err)
-	}
-	_ = json.Unmarshal(files, &datos)
+	_ = json.Unmarshal(file, &datos)
 	return datos
 }
 
 func GetFilter(fieldFilter string, valueFilter string) Accesos {
-	file, err := os.ReadFile("../users.json")
+	file := getFile()
 	datos := Accesos{}
-	if err != nil {
-		fmt.Println(err)
-	}
 	_ = json.Unmarshal([]byte(file), &datos)
 	filter := new(Accesos)
 	for _, u := range datos.Users {
@@ -74,4 +71,38 @@ func GetFilter(fieldFilter string, valueFilter string) Accesos {
 		}
 	}
 	return *filter
+}
+
+func getFile() []byte {
+	files, err := os.ReadFile("../users.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	return files
+}
+
+func getById(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"menssge": "Parametro no valido!",
+		})
+		return
+	}
+	file := getFile()
+	datos := Accesos{}
+	_ = json.Unmarshal([]byte(file), &datos)
+	filter := new(User)
+	for _, u := range datos.Users {
+		if u.Id == id {
+			*filter = u
+		}
+	}
+	if filter.Id == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"menssge": "No existe el registro!",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, filter)
 }
